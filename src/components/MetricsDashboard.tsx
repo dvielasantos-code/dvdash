@@ -1,4 +1,4 @@
-import { ArrowUpRight, ArrowDownRight, DollarSign, CheckCircle2, Zap, TrendingUp, TrendingDown, Target, ShoppingCart } from 'lucide-react';
+import { DollarSign, CheckCircle2, Zap, TrendingUp, TrendingDown, Target, ShoppingCart } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const data = [
