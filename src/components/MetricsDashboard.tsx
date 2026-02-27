@@ -1,15 +1,7 @@
-import { DollarSign, CheckCircle2, Zap, TrendingUp, TrendingDown, Target, ShoppingCart } from 'lucide-react';
+import { DollarSign, CheckCircle2, Zap, TrendingUp, TrendingDown, Target, ShoppingCart, Plus, Calculator, Calendar } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-    { name: 'Seg', faturamento: 4000, aprovado: 2400 },
-    { name: 'Ter', faturamento: 3000, aprovado: 1398 },
-    { name: 'Qua', faturamento: 2000, aprovado: 9800 },
-    { name: 'Qui', faturamento: 2780, aprovado: 3908 },
-    { name: 'Sex', faturamento: 1890, aprovado: 4800 },
-    { name: 'Sáb', faturamento: 2390, aprovado: 3800 },
-    { name: 'Dom', faturamento: 3490, aprovado: 4300 },
-];
+const data: any[] = [];
 
 export default function MetricsDashboard() {
     return (
@@ -19,62 +11,76 @@ export default function MetricsDashboard() {
                     <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Visão Geral</h2>
                     <p className="text-slate-400 mt-1">Acompanhe suas métricas de vendas e performance.</p>
                 </div>
-                <div className="flex gap-2 bg-surface/80 p-1 rounded-xl glass-panel">
-                    <button className="px-4 py-1.5 text-sm rounded-lg bg-white/10 text-white font-medium shadow-sm transition-all shadow-primary/20 cursor-pointer">Hoje</button>
-                    <button className="px-4 py-1.5 text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">7 Dias</button>
-                    <button className="px-4 py-1.5 text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">30 Dias</button>
+                <div className="flex flex-col items-end gap-3">
+                    <div className="flex gap-3">
+                        <button className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-surface_hover border border-white/10 text-slate-200 hover:bg-white/5 transition-all cursor-pointer">
+                            <Calculator size={16} className="text-accent" />
+                            Suposição
+                        </button>
+                        <button className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all cursor-pointer">
+                            <Plus size={16} />
+                            Add Venda
+                        </button>
+                    </div>
+                    <div className="flex flex-wrap gap-1 bg-surface/80 p-1 rounded-xl glass-panel">
+                        <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg bg-white/10 text-white font-medium shadow-sm transition-all shadow-primary/20 cursor-pointer">Hoje</button>
+                        <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">Ontem</button>
+                        <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">Esta Semana</button>
+                        <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">Este Mês</button>
+                        <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer flex items-center gap-1"><Calendar size={14} /> Custom</button>
+                    </div>
                 </div>
             </div>
 
             {/* Grid of 6 Cards - Requirement */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <MetricCard
-                    title="Faturamento Total"
-                    value="R$ 45.231,89"
-                    trend="+12.5%"
-                    isPositive={true}
-                    icon={<DollarSign size={24} className="text-primary" />}
-                    color="primary"
-                />
-                <MetricCard
-                    title="Vendas Aprovadas"
-                    value="1.204"
-                    trend="+8.2%"
+                    title="Lucro Líquido"
+                    value="R$ 0,00"
+                    trend="0%"
                     isPositive={true}
                     icon={<CheckCircle2 size={24} className="text-secondary" />}
                     color="secondary"
                 />
                 <MetricCard
+                    title="Retorno Bruto"
+                    value="R$ 0,00"
+                    trend="0%"
+                    isPositive={true}
+                    icon={<DollarSign size={24} className="text-primary" />}
+                    color="primary"
+                />
+                <MetricCard
                     title="ROI Geral"
-                    value="245%"
-                    trend="+15.3%"
+                    value="0.00"
+                    trend="0%"
                     isPositive={true}
                     icon={<Zap size={24} className="text-accent" />}
                     color="accent"
                 />
                 <MetricCard
-                    title="Ticket Médio"
-                    value="R$ 37,50"
-                    trend="-2.1%"
+                    title="Gasto em ADS"
+                    value="- R$ 0,00"
+                    trend="0%"
+                    isPositive={false}
+                    icon={<TrendingDown size={24} className="text-danger" />}
+                    color="danger"
+                />
+                <MetricCard
+                    title="Taxas Aplicadas"
+                    value="- R$ 0,00"
+                    trend="0%"
                     isPositive={false}
                     icon={<ShoppingCart size={24} className="text-blue-400" />}
                     color="blue"
                 />
                 <MetricCard
-                    title="Taxa de Conversão"
-                    value="3.2%"
-                    trend="+0.4%"
+                    title="Vendas Concluídas"
+                    value="0"
+                    trend="0%"
                     isPositive={true}
                     icon={<Target size={24} className="text-orange-400" />}
                     color="orange"
-                />
-                <MetricCard
-                    title="Chargeback / Reembolso"
-                    value="1.8%"
-                    trend="-0.5%"
-                    isPositive={true}
-                    icon={<TrendingDown size={24} className="text-danger" />}
-                    color="danger"
                 />
             </div>
 
