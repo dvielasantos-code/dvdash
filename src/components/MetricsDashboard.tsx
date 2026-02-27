@@ -1,9 +1,36 @@
+import React, { useState } from 'react';
 import { DollarSign, CheckCircle2, Zap, TrendingUp, TrendingDown, Target, ShoppingCart, Plus, Calculator, Calendar } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useAppContext } from '../context/AppContext';
+import AddSaleModal from './modals/AddSaleModal';
+import SimulationModal from './modals/SimulationModal';
+import DailyRegistrationModal from './modals/DailyRegistrationModal';
 
 const data: any[] = [];
 
 export default function MetricsDashboard() {
+    const {
+        profileData, getFilteredSales, calculateMetrics,
+        dateFilter, setDateFilter, dailyRegistrationName
+    } = useAppContext();
+
+    const [isAddSaleOpen, setIsAddSaleOpen] = useState(false);
+    const [isSimOpen, setIsSimOpen] = useState(false);
+
+    // If no context yet or no daily registration for today
+    const todayStr = new Date().toISOString().split('T')[0];
+    const isRegistered = dailyRegistrationName?.startsWith(todayStr);
+
+    if (!isRegistered) {
+        return <DailyRegistrationModal />;
+    }
+
+    const sales = getFilteredSales();
+    const fees = profileData?.fees || [];
+    const metrics = calculateMetrics(sales, fees);
+
+    const formatCurrency = (val: number) => `R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between mb-8 cursor-default hover:text-white transition-colors">
@@ -13,20 +40,25 @@ export default function MetricsDashboard() {
                 </div>
                 <div className="flex flex-col items-end gap-3">
                     <div className="flex gap-3">
-                        <button className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-surface_hover border border-white/10 text-slate-200 hover:bg-white/5 transition-all cursor-pointer">
+                        <button onClick={() => setIsSimOpen(true)} className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-surface_hover border border-white/10 text-slate-200 hover:bg-white/5 transition-all cursor-pointer">
                             <Calculator size={16} className="text-accent" />
                             Suposição
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all cursor-pointer">
+                        <button onClick={() => setIsAddSaleOpen(true)} className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg bg-primary hover:bg-primary/90 text-white font-medium shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all cursor-pointer">
                             <Plus size={16} />
                             Add Venda
                         </button>
                     </div>
                     <div className="flex flex-wrap gap-1 bg-surface/80 p-1 rounded-xl glass-panel">
-                        <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg bg-white/10 text-white font-medium shadow-sm transition-all shadow-primary/20 cursor-pointer">Hoje</button>
-                        <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">Ontem</button>
-                        <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">Esta Semana</button>
-                        <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">Este Mês</button>
+                        {['Hoje', 'Ontem', 'Esta Semana', 'Este Mês'].map(f => (
+                            <button
+                                key={f}
+                                onClick={() => setDateFilter(f as any)}
+                                className={`px-3 py-1.5 text-xs md:text-sm rounded-lg font-medium transition-all shadow-sm cursor-pointer ${dateFilter === f ? 'bg-white/10 text-white shadow-primary/20' : 'text-slate-400 hover:text-white hover:bg-white/5 outline-none'}`}
+                            >
+                                {f}
+                            </button>
+                        ))}
                         <button className="px-3 py-1.5 text-xs md:text-sm rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer flex items-center gap-1"><Calendar size={14} /> Custom</button>
                     </div>
                 </div>
@@ -36,15 +68,15 @@ export default function MetricsDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <MetricCard
                     title="Lucro Líquido"
-                    value="R$ 0,00"
+                    value={formatCurrency(metrics.lucroLiquido)}
                     trend="0%"
-                    isPositive={true}
+                    isPositive={metrics.lucroLiquido >= 0}
                     icon={<CheckCircle2 size={24} className="text-secondary" />}
                     color="secondary"
                 />
                 <MetricCard
                     title="Retorno Bruto"
-                    value="R$ 0,00"
+                    value={formatCurrency(metrics.retornoBruto)}
                     trend="0%"
                     isPositive={true}
                     icon={<DollarSign size={24} className="text-primary" />}
@@ -52,15 +84,15 @@ export default function MetricsDashboard() {
                 />
                 <MetricCard
                     title="ROI Geral"
-                    value="0.00"
+                    value={metrics.roi.toFixed(2)}
                     trend="0%"
-                    isPositive={true}
+                    isPositive={metrics.roi >= 1.0}
                     icon={<Zap size={24} className="text-accent" />}
                     color="accent"
                 />
                 <MetricCard
                     title="Gasto em ADS"
-                    value="- R$ 0,00"
+                    value={formatCurrency(metrics.gastoAds)}
                     trend="0%"
                     isPositive={false}
                     icon={<TrendingDown size={24} className="text-danger" />}
@@ -68,7 +100,7 @@ export default function MetricsDashboard() {
                 />
                 <MetricCard
                     title="Taxas Aplicadas"
-                    value="- R$ 0,00"
+                    value={formatCurrency(metrics.taxasAplicadas)}
                     trend="0%"
                     isPositive={false}
                     icon={<ShoppingCart size={24} className="text-blue-400" />}
@@ -76,7 +108,7 @@ export default function MetricsDashboard() {
                 />
                 <MetricCard
                     title="Vendas Concluídas"
-                    value="0"
+                    value={metrics.vendasConcluidas.toString()}
                     trend="0%"
                     isPositive={true}
                     icon={<Target size={24} className="text-orange-400" />}
@@ -126,6 +158,10 @@ export default function MetricsDashboard() {
                     </ResponsiveContainer>
                 </div>
             </div>
+
+            {/* Modals */}
+            {isAddSaleOpen && <AddSaleModal onClose={() => setIsAddSaleOpen(false)} />}
+            {isSimOpen && <SimulationModal onClose={() => setIsSimOpen(false)} />}
         </div>
     );
 }
