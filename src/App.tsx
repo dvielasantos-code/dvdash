@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { LayoutDashboard, Percent, Target, Bot, Settings, LogOut, Search, Bell } from 'lucide-react';
+import { LayoutDashboard, Percent, Target, Bot, Settings, LogOut, Bell, ShieldX } from 'lucide-react';
+import { useAppContext } from './context/AppContext';
 import MetricsDashboard from './components/MetricsDashboard';
 import TaxesMenu from './components/TaxesMenu';
 import MissionsView from './components/MissionsView';
@@ -7,6 +8,16 @@ import AIChat from './components/AIChat';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'taxas' | 'missoes' | 'chat'>('dashboard');
+  const { dailyRegistrationName, profileData } = useAppContext();
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const isRegisteredForToday = dailyRegistrationName.startsWith(todayStr);
+  const registeredName = isRegisteredForToday ? dailyRegistrationName.split(' - ')[1] : '';
+
+  const getFormatDate = () => {
+    const d = new Date();
+    return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeStyle: 'short' }).format(d);
+  };
 
   return (
     <div className="flex h-screen w-full bg-[#0B0B0F] text-slate-200 overflow-hidden">
@@ -68,14 +79,25 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-surface/40 via-[#0B0B0F] to-[#0B0B0F]">
         {/* Topbar */}
-        <header className="h-16 flex items-center justify-between px-8 border-b border-white/[0.02]">
-          <div className="flex-1 max-w-md relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-            <input
-              type="text"
-              placeholder="Pesquisar..."
-              className="w-full bg-surface/50 border border-white/5 rounded-full py-2 pl-10 pr-4 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-            />
+        <header className="h-20 flex items-center justify-between px-8 border-b border-white/[0.02]">
+          <div className="flex-1">
+            {isRegisteredForToday && (
+              <div className="flex items-center gap-4 bg-surface_hover border border-white/5 rounded-full px-4 py-2 w-max shadow-lg">
+                <div className="w-10 h-10 rounded-full bg-secondary text-white font-bold flex items-center justify-center text-lg">
+                  {profileData?.sales?.length || 0}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white leading-tight">Dia: "{registeredName}"</p>
+                  <p className="text-xs text-slate-400">Perfil: "{profileData?.profile?.name}"</p>
+                </div>
+                <div className="ml-6 flex items-center gap-4 border-l border-white/10 pl-6">
+                  <span className="text-sm text-slate-300 font-medium">{getFormatDate()}</span>
+                  <button className="w-10 h-10 rounded-xl bg-danger/20 hover:bg-danger/40 border border-danger/30 text-danger flex items-center justify-center transition-colors cursor-pointer">
+                    <ShieldX size={18} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-4">
             <button className="relative p-2 text-slate-400 hover:text-white transition-colors">
@@ -113,8 +135,8 @@ function NavItem({ active, onClick, icon, label, glow = false }: { active: boole
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300 relative group overflow-hidden ${active
-          ? 'bg-primary/10 text-white'
-          : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+        ? 'bg-primary/10 text-white'
+        : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
         }`}
     >
       {active && (
